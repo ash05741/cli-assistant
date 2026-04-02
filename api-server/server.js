@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Snippet = require('./models/Snippet');
+const {GoogleGenerativeAI} = require('@google/generative-ai');
 
 const app = express();
 const PORT = 3000;
@@ -62,6 +63,27 @@ app.get('/api/snippets/:alias', async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ error: "Server error while fetching snippet." });
+    }
+});
+
+app.post('/ask', async (req, res) => {
+    try {
+        const userQuestion = req.body.question;
+
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        // Tell the AI to act like a terminal assistant
+        const prompt = `You are a helpful CLI developer assistant. Answer this question concisely with code if applicable: ${userQuestion}`;
+
+        const result = await model.generateContent(prompt);
+        const aiResponse = await result.response.text();
+      
+        res.json({ answer: aiResponse });
+
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "My AI brain just short-circuited." });
     }
 });
 

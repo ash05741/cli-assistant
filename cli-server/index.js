@@ -74,6 +74,36 @@ async function runBot() {
             console.log(" Could not connect to the Brain.");
         }
     } 
+
+    else if (action === 'ask') {
+       
+        const question = args.slice(1).join(" ");
+
+        if (!question) {
+            console.log("⚠️ What do you want to ask? (e.g., bot ask how to reverse an array)");
+            return;
+        }
+
+        console.log("🤔 Thinking...\n");
+
+        try {
+            const response = await fetch(`http://127.0.0.1:3000/ask`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            });
+            
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log(`🤖 AI:\n${data.answer}\n`);
+            } else {
+                console.log(`\n${data.error}\n`);
+            }
+        } catch (error) {
+            console.log("❌ Connection Error:", error.message);
+        }
+    }
     
     else {
         console.log(` I don't know how to '${action}' yet!`);
