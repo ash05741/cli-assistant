@@ -7,7 +7,7 @@ const args = process.argv.slice(2);
 const action = args[0]; // e.g., 'save' or 'get'
 
 // The URL where your Express server is listening
-const API_URL = 'http://localhost:3000/api/snippets'; 
+const API_URL = 'https://cli-assistant.onrender.com/api/snippets'; // Update this if your server URL changes
 
 // 2. Main Logic Function
 async function runBot() {
@@ -106,7 +106,7 @@ async function runBot() {
             console.log("❌ Connection Error:", error.message);
         }
     }
-    
+
     // --- NEW: THE 'RUN' LOGIC ---
     else if (action === 'run') {
         const alias = args[1]; 
