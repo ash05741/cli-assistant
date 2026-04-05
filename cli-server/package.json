@@ -2,6 +2,7 @@
   "name": "cli-client",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "bin": {
     "bot": "./index.js"
@@ -11,5 +12,9 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "ora": "^9.3.0"
+  }
 }

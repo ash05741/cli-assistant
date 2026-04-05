@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-const {exec} = require('child_process');
+import { exec } from 'child_process';
+import chalk from 'chalk';
 
 // 1. Capture the arguments
 const args = process.argv.slice(2);
@@ -12,7 +13,7 @@ const API_URL = 'https://cli-assistant.onrender.com/api/snippets'; // Update thi
 // 2. Main Logic Function
 async function runBot() {
     if (!action) {
-        console.log(" CLI Assistant: Please provide a command (e.g., bot get <alias>)");
+        console.log(chalk.yellow("⚠️ CLI Assistant: Please provide a command (e.g., bot get <alias>)"));
         return;
     }
 
@@ -20,7 +21,7 @@ async function runBot() {
         const alias = args[1]; 
         
         if (!alias) {
-            console.log(" You need to tell me what to get! (e.g., bot get react-init)");
+            console.log(chalk.yellow("⚠️ You need to tell me what to get! (e.g., bot get react-init)"));
             return;
         }
 
@@ -29,16 +30,16 @@ async function runBot() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log(`\n Found '${data.alias}':`);
-                console.log(`----------------------------------`);
-                console.log(data.command);
-                console.log(`----------------------------------`);
-                console.log(`Description: ${data.description}\n`);
+                console.log(chalk.green(`\n✅ Found '${data.alias}':`));
+                console.log(chalk.gray(`----------------------------------`));
+                console.log(chalk.white(data.command));
+                console.log(chalk.gray(`----------------------------------`));
+                console.log(chalk.cyan(`Description: ${data.description}\n`));
             } else {
-                console.log(`\n${data.error}\n`);
+                console.log(chalk.red(`\n❌ ${data.error}\n`));
             }
         } catch (error) {
-            console.log(" Could not connect to the Brain. Is your Express server running?");
+            console.log(chalk.red("❌ Could not connect to the Brain. Is your Express server running?"));
         }
     } 
     
@@ -49,7 +50,7 @@ async function runBot() {
         const aliasToSave = args[3];
 
         if (!commandToSave || asKeyword !== 'as' || !aliasToSave) {
-            console.log(" Oops! Format it like this: bot save \"<command>\" as \"<alias>\"");
+            console.log(chalk.yellow("⚠️ Oops! Format it like this: bot save \"<command>\" as \"<alias>\""));
             return;
         }
 
@@ -68,12 +69,12 @@ async function runBot() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log(`\n${data.message}\n`); // Prints the success message from Express
+                console.log(chalk.green(`\n✅ ${data.message}\n`)); // Prints the success message from Express
             } else {
-                console.log(`\n${data.error}\n`);
+                console.log(chalk.red(`\n❌ ${data.error}\n`));
             }
         } catch (error) {
-            console.log(" Could not connect to the Brain.");
+            console.log(chalk.red("❌ Could not connect to the Brain."));
         }
     } 
 
@@ -82,11 +83,11 @@ async function runBot() {
         const question = args.slice(1).join(" ");
 
         if (!question) {
-            console.log("⚠️ What do you want to ask? (e.g., bot ask how to reverse an array)");
+            console.log(chalk.yellow("⚠️ What do you want to ask? (e.g., bot ask how to reverse an array)"));
             return;
         }
 
-        console.log("🤔 Thinking...\n");
+        console.log(chalk.cyan("🤔 Thinking...\n"));
 
         try {
             const response = await fetch(`https://cli-assistant.onrender.com/ask`, {
@@ -98,12 +99,12 @@ async function runBot() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log(`🤖 AI:\n${data.answer}\n`);
+                console.log(chalk.cyan(`🤖 AI:\n${data.answer}\n`));
             } else {
-                console.log(`\n${data.error}\n`);
+                console.log(chalk.red(`\n❌ ${data.error}\n`));
             }
         } catch (error) {
-            console.log("❌ Connection Error:", error.message);
+            console.log(chalk.red(`❌ Connection Error: ${error.message}`));
         }
     }
 
@@ -112,41 +113,41 @@ async function runBot() {
         const alias = args[1]; 
         
         if (!alias) {
-            console.log("⚠️ You need to tell me what to run! (e.g., bot run react-init)");
+            console.log(chalk.yellow("⚠️ You need to tell me what to run! (e.g., bot run react-init)"));
             return;
         }
 
         try {
-            console.log(`🔍 Fetching command for '${alias}'...`);
+            console.log(chalk.cyan(`🔍 Fetching command for '${alias}'...`));
             const response = await fetch(`${API_URL}/${alias}`);
             const data = await response.json();
 
             if (response.ok) {
-                console.log(`🚀 Executing: ${data.command}\n`);
+                console.log(chalk.yellow(`🚀 Executing: ${data.command}\n`));
                 
                 // This executes the command directly in your terminal
                 exec(data.command, (error, stdout, stderr) => {
                     if (error) {
-                        console.error(`❌ Execution Failed: ${error.message}`);
+                        console.error(chalk.red(`❌ Execution Failed: ${error.message}`));
                         return;
                     }
                     
                     // Print any standard output or errors from the command itself
-                    if (stderr) console.error(stderr);
-                    if (stdout) console.log(stdout);
+                    if (stderr) console.error(chalk.yellow(stderr));
+                    if (stdout) console.log(chalk.white(stdout));
                     
-                    console.log(`\n✅ Finished running '${alias}'`);
+                    console.log(chalk.green(`\n✅ Finished running '${alias}'`));
                 });
             } else {
-                console.log(`\n${data.error}\n`);
+                console.log(chalk.red(`\n❌ ${data.error}\n`));
             }
         } catch (error) {
-            console.log("❌ Could not connect to the Brain. Is your Express server running?");
+            console.log(chalk.red("❌ Could not connect to the Brain. Is your Express server running?"));
         }
     }
     
     else {
-        console.log(` I don't know how to '${action}' yet!`);
+        console.log(chalk.red(`❌ I don't know how to '${action}' yet!`));
     }
 }
 
