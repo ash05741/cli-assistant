@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const {exec} = require('child_process');
+
 // 1. Capture the arguments
 const args = process.argv.slice(2);
 const action = args[0]; // e.g., 'save' or 'get'
@@ -102,6 +104,44 @@ async function runBot() {
             }
         } catch (error) {
             console.log("❌ Connection Error:", error.message);
+        }
+    }
+    
+    // --- NEW: THE 'RUN' LOGIC ---
+    else if (action === 'run') {
+        const alias = args[1]; 
+        
+        if (!alias) {
+            console.log("⚠️ You need to tell me what to run! (e.g., bot run react-init)");
+            return;
+        }
+
+        try {
+            console.log(`🔍 Fetching command for '${alias}'...`);
+            const response = await fetch(`${API_URL}/${alias}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log(`🚀 Executing: ${data.command}\n`);
+                
+                // This executes the command directly in your terminal
+                exec(data.command, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`❌ Execution Failed: ${error.message}`);
+                        return;
+                    }
+                    
+                    // Print any standard output or errors from the command itself
+                    if (stderr) console.error(stderr);
+                    if (stdout) console.log(stdout);
+                    
+                    console.log(`\n✅ Finished running '${alias}'`);
+                });
+            } else {
+                console.log(`\n${data.error}\n`);
+            }
+        } catch (error) {
+            console.log("❌ Could not connect to the Brain. Is your Express server running?");
         }
     }
     
